@@ -3,15 +3,16 @@
 #include <string.h>
 #include <sys/socket.h>
 #include <arpa/inet.h>
+#include <unistd.h>
 
 int resolveMessage(char* msg, char* rsp)
 {
-    char[4] func; 
+    char* func; 
     int op1, op2, res;
 
-    func = strtok(msg, ':');
-    op1 = atoi(strtok( NULL , ','))
-    op2 = atoi(strtok( NULL , ','))
+    func = strtok(msg, ":");
+    op1 = atoi(strtok( NULL , ","));
+    op2 = atoi(strtok( NULL , ","));
 
     if( !strcmp(func, "add") )
     {
@@ -38,12 +39,19 @@ int resolveMessage(char* msg, char* rsp)
 }
 
 int main(int argc, char *argv[]) {
-int server_fd, new_socket, valread;
+    int server_fd, new_socket, valread;
     struct sockaddr_in address;
     int opt = 1;
     int addrlen = sizeof(address);
     char buffer[1024] = {0};
     char response[1024] = {0};
+
+    if(argc < 2)
+    {
+        printf("Usage %s <port>\n", argv[0]);
+	return 1;
+    }
+
 
     // Create socket file descriptor
     if ((server_fd = socket(AF_INET, SOCK_STREAM, 0)) == 0) {
@@ -60,7 +68,7 @@ int server_fd, new_socket, valread;
     // Bind socket to a port
     address.sin_family = AF_INET;
     address.sin_addr.s_addr = INADDR_ANY;
-    address.sin_port = htons(PORT);
+    address.sin_port = htons(atoi(argv[1]));
 
     if (bind(server_fd, (struct sockaddr *)&address, sizeof(address))<0) {
         perror("bind failed");
